@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binus Anti-Bullying Center (BAC)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary: #2A9D8F;
+            --secondary: #264653;
+            --accent: #E9C46A;
+            --bg-light: #F4F7F6;
+            --white: #FFFFFF;
+        }
+
+        html {
+            scroll-behavior: smooth; /* Efek scrolling halus */
+            scroll-padding-top: 80px; /* Jarak agar tertutup navbar */
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--white);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVBAR --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 90%;
+            top: 0;
+            z-index: 1000;
+            transition: 0.3s;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* --- SECTIONS GENERAL --- */
+        section {
+            padding: 80px 5%;
+            min-height: 80vh; /* Agar setiap section cukup tinggi */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--secondary);
+            margin-bottom: 50px;
+            font-weight: bold;
+        }
+
+        /* --- HERO SECTION (HOME) --- */
+        .hero {
+            display: flex;
+            flex-direction: row; /* Default Row */
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            padding-top: 100px; 
+        }
+
+        .hero-text {
+            flex: 1;
+            padding-right: 50px;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+
+        .btn-learn {
+            padding: 12px 30px;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .btn-learn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* --- AUTH CARD --- */
+        .auth-card {
+            flex: 0 0 400px;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--primary);
+        }
+
+        .auth-card h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background: #f9f9f9;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary);
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .toggle-link span {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* --- ABOUT SECTION --- */
+        .bg-light { background-color: var(--bg-light); }
+        
+        .about-content {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .about-img {
+            flex: 1;
+            text-align: center;
+        }
+        .about-img img {
+            width: 80%;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .about-text {
+            flex: 1;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        /* --- SERVICES SECTION --- */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-box {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            border: 1px solid #eee;
+        }
+
+        .feature-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: block;
+        }
+
+        .feature-box h3 { color: var(--secondary); margin-bottom: 15px; }
+        .feature-box p { color: #666; line-height: 1.6; }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--secondary);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: auto;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                justify-content: center;
+                padding-top: 120px;
+            }
+
+            .hero-text {
+                padding: 0;
+                margin-bottom: 50px;
+            }
+
+            .hero-text h1 { font-size: 2.5rem; }
+
+            .auth-card {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .about-content {
+                flex-direction: column;
+            }
+            
+            nav { justify-content: center; flex-direction: column; gap: 10px;}
+            .logo { margin-bottom: 5px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="#" class="logo">BINUS <span>BAC</span></a>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#about">Tentang</a>
+            <a href="#layanan">Layanan</a>
+            <a href="#kontak">Kontak</a>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-text">
+            <h1>Kampus Aman,<br>Mahasiswa Nyaman.</h1>
+            <p>Binus Anti-Bullying Center (BAC) hadir sebagai ruang aman bagi Binusian untuk melaporkan, berkonsultasi, dan mendapatkan perlindungan.</p>
+            <a href="#about" class="btn-learn">Pelajari Selengkapnya</a>
+        </div>
+
+        <div class="auth-card" id="loginCard">
+            <h2>Login Binusian</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>NIM</label>
+                    <input type="text" id="loginNim" placeholder="Contoh: 280123456" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPass" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit" class="btn-submit">Masuk</button>
+                <div class="toggle-link">
+                    Belum punya akun? <span onclick="showRegister()">Daftar di sini</span>
+                </div>
+            </form>
+        </div>
+
+        <div class="auth-card hidden" id="registerCard">
+            <h2>Daftar Akun Baru</h2>
+            <form id="registerForm">
+                <div class="input-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="regNama" placeholder="Nama Anda" required>
+                </div>
+                <div class="input-group">
+                    <label>NIM</label>
+                    <input type="text" id="regNim" placeholder="NIM Binus" required>
+                </div>
+                <div class="input-group">
+                    <label>Jurusan</label>
+                    <select id="regJurusan" required>
+                        <option value="">-- Pilih Jurusan --</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Information Systems">Information Systems</option>
+                        <option value="DKV">Desain Komunikasi Visual (DKV)</option>
+                        <option value="Management">Management</option>
+                        <option value="Accounting">Accounting</option>
+                        <option value="Communication">Marketing Communication</option>
+                        <option value="Psychology">Psychology</option>
+                        <option value="International Relations">International Relations</option>
+                        <option value="Hotel Management">Hotel Management</option>
+                        <option value="Business Law">Business Law</option>
+                        <option value="Architecture">Architecture</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="regPass" placeholder="Buat Password" required>
+                </div>
+                <button type="submit" class="btn-submit">Daftar Sekarang</button>
+                <div class="toggle-link">
+                    Sudah punya akun? <span onclick="showLogin()">Login di sini</span>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section id="about" class="bg-light">
+        <h2 class="section-title">Tentang BAC</h2>
+        <div class="about-content">
+            <div class="about-img">
+                <i class="fas fa-shield-alt" style="font-size: 10rem; color: var(--accent);"></i>
+            </div>
+            <div class="about-text">
+                <p>
+                    <strong>Bullying tidak memiliki tempat di lingkungan akademik.</strong><br><br>
+                    Binus Anti-Bullying Center (BAC) didirikan sebagai wujud komitmen universitas untuk menciptakan lingkungan belajar yang inklusif, aman, dan mendukung kesehatan mental seluruh civitas akademika.
+                </p>
+                <p>
+                    Kami menyediakan platform pelaporan yang <strong>aman, rahasia, dan transparan</strong>. Setiap laporan akan ditangani oleh tim profesional dan konselor yang berpengalaman.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="layanan">
+        <h2 class="section-title">Layanan Kami</h2>
+        <div class="grid-3">
+            <div class="feature-box">
+                <span class="feature-icon"><i class="fas fa-user-secret"></i></span>
+                <h3>Pelaporan Anonim</h3>
+                <p>Laporkan insiden tanpa rasa takut. Kami menyediakan opsi pelaporan anonim untuk melindungi identitas Anda sepenuhnya.</p>
+            </div>
+            <div class="feature-box">
+                <span class="feature-icon"><i class="fas fa-comments"></i></span>
+                <h3>Konseling Psikologis</h3>
+                <p>Terhubung langsung dengan psikolog kampus dan konselor sebaya untuk pemulihan trauma dan dukungan mental.</p>
+            </div>
+            <div class="feature-box">
+                <span class="feature-icon"><i class="fas fa-gavel"></i></span>
+                <h3>Mediasi & Tindakan</h3>
+                <p>Kami memfasilitasi mediasi yang adil dan memastikan sanksi disipliner ditegakkan sesuai peraturan universitas.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer id="kontak">
+        <h3>Hubungi Kami</h3>
+        <p style="margin: 10px 0;">Student Advisory Center (SAC) - Kampus Anggrek Lt. 2</p>
+        <p><i class="fab fa-whatsapp"></i> +62 --- --- --- | <i class="fas fa-envelope"></i> help@binus.ac.id</p>
+        <br>
+        <p style="font-size: 0.8rem; opacity: 0.7;">&copy; 2025 Binus Anti-Bullying Center. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const API_URL = "http://localhost:8080/api";
+
+        // --- TOGGLE LOGIN/REGISTER ---
+        function showRegister() {
+            document.getElementById('loginCard').classList.add('hidden');
+            document.getElementById('registerCard').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('registerCard').classList.add('hidden');
+            document.getElementById('loginCard').classList.remove('hidden');
+        }
+
+        // --- 1. PROSES REGISTER ---
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const data = {
+                nama: document.getElementById('regNama').value,
+                nim: document.getElementById('regNim').value,
+                jurusan: document.getElementById('regJurusan').value,
+                password: document.getElementById('regPass').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.text();
+
+                if (response.ok) {
+                    alert("Registrasi Berhasil! Silakan Login.");
+                    showLogin();
+                } else {
+                    alert("Gagal: " + result);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Gagal menghubungi server backend.");
+            }
+        });
+
+        // --- 2. PROSES LOGIN ---
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const data = {
+                nim: document.getElementById('loginNim').value,
+                password: document.getElementById('loginPass').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Simpan data ke session
+                    localStorage.setItem('userNama', result.nama);
+                    localStorage.setItem('userRole', result.role);
+                    localStorage.setItem('userNim', data.nim);
+                    
+                    alert("Login Berhasil! Halo, " + result.nama);
+
+                    // Redirect sesuai Role
+                    if (result.role === 'ADMIN') {
+                        window.location.href = 'admin/dashboardadmin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+
+                } else {
+                    alert("Login Gagal: NIM atau Password salah.");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Server backend belum dinyalakan!");
+            }
+        });
+    </script>
+
+</body>
+</html>

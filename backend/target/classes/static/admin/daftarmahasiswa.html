@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAC Admin - Data Mahasiswa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #264653; 
+            --accent: #2A9D8F;
+            --bg-light: #F4F7F6;
+            --sidebar-width: 260px;
+            --radius: 8px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-light); display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: var(--sidebar-width); background: var(--primary); color: white; padding: 30px 20px; position: fixed; height: 100vh; display: flex; flex-direction: column; }
+        .brand { margin-bottom: 40px; padding-left: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+        .brand h2 { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+        .brand span { font-size: 0.9rem; color: #ccc; }
+        .menu { display: flex; flex-direction: column; gap: 10px; }
+        .menu-item { text-decoration: none; padding: 12px 20px; border-radius: 8px; color: #ccc; font-weight: 500; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .menu-item:hover, .menu-item.active { background-color: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--accent); }
+        .menu-item i { width: 25px; text-align: center; }
+        .logout-link { margin-top: auto; color: #E76F51 !important; }
+
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px; }
+
+        /* Search Bar */
+        .search-container { display: flex; gap: 10px; margin-bottom: 30px; background: white; padding: 15px; border-radius: var(--radius); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .search-input { flex: 1; border: none; outline: none; font-size: 1rem; }
+        .search-btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+
+        /* Student Grid */
+        .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+
+        /* Student Card Style */
+        .student-card {
+            background: white; padding: 30px 20px; border-radius: var(--radius);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;
+            transition: 0.3s; position: relative; overflow: hidden;
+            border-top: 5px solid #28a745; /* Default Green */
+        }
+        .student-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+        /* Style Terlapor (Merah) */
+        .student-card.card-reported { border-top-color: #dc3545; }
+
+        /* Avatar */
+        .avatar { 
+            width: 80px; height: 80px; border-radius: 50%; 
+            object-fit: cover; margin: 0 auto 15px; border: 3px solid #eee; 
+            background-color: #f0f0f0;
+        }
+        
+        .student-name { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .student-nim { color: #666; font-size: 0.9rem; margin-bottom: 5px; display: block; font-family: monospace; }
+        .student-prodi { color: var(--accent); font-weight: 600; font-size: 0.85rem; margin-bottom: 15px; display: block; }
+        
+        .status-container { margin-bottom: 20px; }
+        .status-dot { height: 10px; width: 10px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .status-text { font-size: 0.8rem; color: #28a745; font-weight: bold; }
+        
+        .card-reported .status-dot { background-color: #dc3545; }
+        .card-reported .status-text { color: #dc3545; }
+        
+        .btn-detail {
+            display: inline-block; padding: 8px 25px;
+            background: var(--primary); color: white; border-radius: 20px;
+            text-decoration: none; font-size: 0.9rem; transition: 0.3s;
+            border: none; cursor: pointer;
+        }
+        .btn-detail:hover { background: #1d3640; }
+
+        .loading-state, .empty-state { text-align: center; width: 100%; padding: 40px; color: #888; grid-column: 1 / -1; }
+
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <h2>BAC ADMIN</h2>
+            <span>Panel Pengelola</span>
+        </div>
+        <nav class="menu">
+            <a href="dashboardadmin.html" class="menu-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="laporan.html" class="menu-item"><i class="fas fa-inbox"></i> Laporan Masuk</a>
+            <a href="daftarmahasiswa.html" class="menu-item active"><i class="fas fa-users"></i> Data Mahasiswa</a>
+            <a href="konsultan.html" class="menu-item"><i class="fas fa-user-md"></i> Konsultan</a>
+            <a href="../index.html" class="menu-item logout-link" onclick="localStorage.clear()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <h2 style="margin-bottom:20px; color:#264653;">Database Mahasiswa</h2>
+
+        <div class="search-container">
+            <i class="fas fa-search" style="color:#888; align-self:center;"></i>
+            <input type="text" id="studentSearch" class="search-input" placeholder="Cari Nama, NIM, atau Jurusan...">
+        </div>
+
+        <div class="student-grid" id="studentGrid">
+            <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = "http://localhost:8080/api";
+        let allStudents = [];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (localStorage.getItem('userRole') !== 'ADMIN') {
+                alert("Akses Ditolak!");
+                window.location.href = '../index.html';
+                return;
+            }
+            loadData();
+        });
+
+        async function loadData() {
+            try {
+                // 1. Fetch Semua Mahasiswa
+                const resUsers = await fetch(`${API_URL}/users/members`);
+                const users = await resUsers.json();
+
+                // 2. Fetch Semua Laporan (Untuk cek status terlapor)
+                const resReports = await fetch(`${API_URL}/laporan/all`);
+                const reports = await resReports.json();
+
+                // 3. Proses Mapping Status
+                allStudents = users.map(user => {
+                    // Filter laporan milik user ini yang statusnya aktif (Diterima/Diproses)
+                    // DAN TIDAK ANONIM (!r.anonim)
+                    const activeReports = reports.filter(r => 
+                        r.nimPelapor === user.nim && 
+                        (r.status === 'Diterima' || r.status === 'Diproses') &&
+                        !r.anonim // <-- LOGIKA BARU: Jika anonim, abaikan (jangan hitung sbg kasus)
+                    );
+
+                    return {
+                        ...user,
+                        isReported: activeReports.length > 0, // Hanya true jika ada laporan tidak anonim
+                        activeCaseCount: activeReports.length
+                    };
+                });
+
+                renderGrid(allStudents);
+
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('studentGrid').innerHTML = `<div class="empty-state">Gagal memuat data.</div>`;
+            }
+        }
+
+        function renderGrid(students) {
+            const grid = document.getElementById('studentGrid');
+            grid.innerHTML = '';
+
+            if (students.length === 0) {
+                grid.innerHTML = `<div class="empty-state">Belum ada data mahasiswa.</div>`;
+                return;
+            }
+
+            students.forEach(student => {
+                let statusHtml = '';
+                let cardClass = 'student-card';
+
+                if (student.isReported) {
+                    cardClass += ' card-reported';
+                    statusHtml = `<span class="status-dot"></span><span class="status-text">Terlapor (${student.activeCaseCount} Kasus)</span>`;
+                } else {
+                    statusHtml = `<span class="status-dot"></span><span class="status-text">Active (Good)</span>`;
+                }
+
+                // Logic Foto
+                let avatarUrl = '';
+                if (student.fotoProfile) {
+                    avatarUrl = `${API_URL}/users/foto/${student.fotoProfile}`;
+                } else {
+                    avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.nama)}&background=random&color=fff`;
+                }
+
+                const html = `
+                    <div class="${cardClass}">
+                        <img src="${avatarUrl}" class="avatar" alt="Foto Profil" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(student.nama)}&background=random&color=fff';">
+                        <div class="student-name">${student.nama}</div>
+                        <span class="student-nim">${student.nim}</span>
+                        <span class="student-prodi">${student.jurusan || '-'}</span>
+                        
+                        <div class="status-container">
+                            ${statusHtml}
+                        </div>
+                        
+                        <a href="detailprofile.html?nim=${student.nim}" class="btn-detail">Lihat Detail</a>
+                    </div>
+                `;
+                grid.innerHTML += html;
+            });
+        }
+
+        // --- SEARCH FUNCTION ---
+        document.getElementById('studentSearch').addEventListener('keyup', function() {
+            const term = this.value.toLowerCase();
+            const filtered = allStudents.filter(s => 
+                s.nama.toLowerCase().includes(term) ||
+                s.nim.includes(term) ||
+                (s.jurusan && s.jurusan.toLowerCase().includes(term))
+            );
+            renderGrid(filtered);
+        });
+    </script>
+</body>
+</html>

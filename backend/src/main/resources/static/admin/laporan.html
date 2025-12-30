@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAC Admin - Daftar Laporan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #264653; 
+            --accent: #2A9D8F;
+            --warning: #E9C46A;
+            --danger: #E76F51;
+            --bg-light: #F4F7F6;
+            --white: #FFFFFF;
+            --sidebar-width: 260px;
+            --radius: 8px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-light); display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width); background: var(--primary); color: white;
+            padding: 30px 20px; position: fixed; height: 100vh; display: flex; flex-direction: column; z-index: 100;
+        }
+        .brand { margin-bottom: 40px; padding-left: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+        .brand h2 { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+        .brand span { font-size: 0.9rem; color: #ccc; }
+        .menu { display: flex; flex-direction: column; gap: 10px; }
+        .menu-item {
+            text-decoration: none; padding: 12px 20px; border-radius: 8px; color: #ccc;
+            font-weight: 500; display: flex; align-items: center; gap: 15px; transition: 0.3s;
+        }
+        .menu-item:hover, .menu-item.active { background-color: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--accent); }
+        .menu-item i { width: 25px; text-align: center; }
+        .logout-link { margin-top: auto; color: var(--danger) !important; }
+        .logout-link:hover { background: rgba(231, 111, 81, 0.1); }
+
+        /* Main Content */
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px; width: calc(100% - var(--sidebar-width)); }
+
+        /* Search Bar Style */
+        .search-container {
+            display: flex; gap: 10px; margin-bottom: 30px;
+            background: white; padding: 15px; border-radius: var(--radius);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .search-input { flex: 1; border: none; outline: none; font-size: 1rem; }
+        .search-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+
+        /* Grid Layout */
+        .report-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
+        }
+
+        /* Report Card */
+        .report-card {
+            background: white; padding: 25px; border-radius: var(--radius);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative;
+            border-top: 5px solid #ccc; transition: 0.3s; display: flex; flex-direction: column;
+        }
+        .report-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        .status-diterima { border-top-color: var(--warning); }
+        .status-diproses { border-top-color: var(--accent); }
+        .status-selesai { border-top-color: var(--primary); }
+        .status-ditolak { border-top-color: var(--danger); }
+
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .ticket-id { font-weight: bold; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; }
+        
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: white; font-weight: bold; }
+        .badge-diterima { background: var(--warning); color: #333; }
+        .badge-diproses { background: var(--accent); }
+        .badge-selesai { background: var(--primary); }
+        .badge-ditolak { background: var(--danger); }
+
+        .card-body { flex: 1; }
+        .card-body h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-meta { font-size: 0.9rem; color: #666; display: block; margin-bottom: 10px; }
+        .card-desc { font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; }
+        
+        .btn-sm { 
+            text-decoration: none; font-size: 0.85rem; padding: 6px 12px; 
+            border-radius: 4px; border: 1px solid var(--primary); color: var(--primary); 
+            background: white; transition: 0.2s; cursor: pointer;
+        }
+        .btn-sm:hover { background: var(--primary); color: white; }
+
+        .status-select-sm {
+            padding: 5px; border-radius: 4px; border: 1px solid #ddd; font-size: 0.85rem; cursor: pointer; max-width: 120px;
+        }
+
+        /* --- MODAL STYLES (Sama dengan Dashboard) --- */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 30px; border: 1px solid #888; width: 60%; max-width: 800px; border-radius: 12px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.2); animation: slideIn 0.3s; }
+        @keyframes slideIn { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+        .detail-row { display: flex; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .detail-label { font-weight: bold; width: 180px; color: #555; }
+        .detail-value { flex: 1; color: #333; }
+        .proof-img { max-width: 100%; max-height: 400px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; }
+        .modal-header { margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .modal-header h3 { color: var(--primary); margin-bottom: 5px; }
+
+        .loading-state, .empty-state { text-align: center; width: 100%; padding: 40px; color: #888; grid-column: 1 / -1; }
+
+        @media (max-width: 768px) { 
+            .sidebar { display: none; } 
+            .main-content { margin-left: 0; width: 100%; } 
+            .modal-content { width: 90%; }
+            .detail-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand"><h2>BAC ADMIN</h2><span>Panel Pengelola</span></div>
+        <nav class="menu">
+            <a href="dashboardadmin.html" class="menu-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="laporan.html" class="menu-item active"><i class="fas fa-inbox"></i> Laporan Masuk</a>
+            <a href="daftarmahasiswa.html" class="menu-item"><i class="fas fa-users"></i> Data Mahasiswa</a>
+            <a href="konsultan.html" class="menu-item"><i class="fas fa-user-md"></i> Konsultan</a>
+            <a href="../index.html" class="menu-item logout-link" onclick="localStorage.clear()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <h2 style="margin-bottom:20px; color:#264653;">Daftar Semua Laporan</h2>
+
+        <div class="search-container">
+            <i class="fas fa-search" style="color:#888; align-self:center;"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari ID, Pelapor, atau Kategori...">
+        </div>
+
+        <div class="report-grid" id="reportGrid">
+            <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>
+        </div>
+    </main>
+
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h3 id="modalJudul">Judul Laporan</h3>
+                <span id="modalTicket" style="background:#eee; padding:2px 8px; border-radius:4px; font-family:monospace; margin-right: 10px;">#LP-000</span>
+                <span id="modalStatus" class="badge">Status</span>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Tanggal Kejadian</div>
+                <div class="detail-value" id="modalWaktu">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Kategori</div>
+                <div class="detail-value" id="modalKategori">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Tempat Kejadian</div>
+                <div class="detail-value" id="modalTempat">-</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Data Pelapor</div>
+                <div class="detail-value" id="modalPelapor">-</div>
+            </div>
+            <div class="detail-row" style="flex-direction: column;">
+                <div class="detail-label" style="margin-bottom:10px;">Kronologi / Deskripsi</div>
+                <div class="detail-value" id="modalDeskripsi" style="background:#f9f9f9; padding:15px; border-radius:8px; line-height:1.6; text-align: justify;">-</div>
+            </div>
+            <div class="detail-row" style="flex-direction: column; border-bottom: none;">
+                <div class="detail-label" style="margin-bottom:10px;">Bukti Lampiran</div>
+                <div class="detail-value" id="modalBuktiContainer">
+                    <span style="color:#888;">Tidak ada bukti lampiran.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8080/api";
+        let allReports = []; 
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Cek Login Admin
+            if (localStorage.getItem('userRole') !== 'ADMIN') {
+                alert("Akses Ditolak!");
+                window.location.href = '../index.html';
+                return;
+            }
+            loadReports();
+        });
+
+        async function loadReports() {
+            try {
+                const response = await fetch(`${API_URL}/laporan/all`);
+                if (!response.ok) throw new Error("Gagal");
+                allReports = await response.json();
+                renderGrid(allReports);
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('reportGrid').innerHTML = `<div class="empty-state">Gagal memuat data.</div>`;
+            }
+        }
+
+        function renderGrid(reports) {
+            const grid = document.getElementById('reportGrid');
+            grid.innerHTML = '';
+
+            if (reports.length === 0) {
+                grid.innerHTML = `<div class="empty-state">Tidak ada laporan ditemukan.</div>`;
+                return;
+            }
+
+            reports.forEach((report, index) => {
+                const dateObj = new Date(report.waktuKejadian);
+                const dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                const statusLower = report.status.toLowerCase();
+
+                // Logic Anonim
+                const pelaporName = report.anonim ? "Anonim" : report.namaPelapor;
+                
+                // Logic Badge Class
+                let badgeClass = 'badge-diterima';
+                if(statusLower === 'diproses') badgeClass = 'badge-diproses';
+                else if(statusLower === 'selesai') badgeClass = 'badge-selesai';
+                else if(statusLower === 'ditolak') badgeClass = 'badge-ditolak';
+
+                const html = `
+                    <div class="report-card status-${statusLower}" id="card-${report.id}">
+                        <div class="card-header">
+                            <span class="ticket-id">#LP-${report.id}</span>
+                            <span class="badge ${badgeClass}">${report.status}</span>
+                        </div>
+                        <div class="card-body">
+                            <h3>${report.judulLaporan || 'Tanpa Judul'}</h3>
+                            <span class="card-meta"><i class="fas fa-user"></i> ${pelaporName} | ${dateStr}</span>
+                            <p class="card-desc">${report.deskripsi}</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-sm" onclick="showDetail(${index})">Detail</button>
+                            <select class="status-select-sm" onchange="updateStatus(${report.id}, this)">
+                                <option value="Diterima" ${report.status === 'Diterima' ? 'selected' : ''}>Diterima</option>
+                                <option value="Diproses" ${report.status === 'Diproses' ? 'selected' : ''}>Diproses</option>
+                                <option value="Selesai" ${report.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                                <option value="Ditolak" ${report.status === 'Ditolak' ? 'selected' : ''}>Ditolak</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += html;
+            });
+        }
+
+        // --- SEARCH FUNCTION ---
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const term = this.value.toLowerCase();
+            const filtered = allReports.filter(r => 
+                (r.judulLaporan && r.judulLaporan.toLowerCase().includes(term)) ||
+                r.namaPelapor.toLowerCase().includes(term) ||
+                r.kategori.toLowerCase().includes(term) ||
+                r.id.toString().includes(term)
+            );
+            renderGrid(filtered);
+        });
+
+        // --- UPDATE STATUS ---
+        async function updateStatus(id, selectElement) {
+            const newStatus = selectElement.value;
+            selectElement.disabled = true;
+            try {
+                const response = await fetch(`${API_URL}/laporan/update-status/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (response.ok) {
+                    alert(`Status diperbarui ke: ${newStatus}`);
+                    loadReports(); // Reload untuk update warna border & badge
+                } else {
+                    alert("Gagal update status");
+                }
+            } catch (e) {
+                alert("Error koneksi");
+            } finally {
+                selectElement.disabled = false;
+            }
+        }
+
+        // --- SHOW DETAIL MODAL ---
+        function showDetail(index) {
+            const report = allReports.find(r => r === allReports[index]) || allReports[index]; 
+            // Note: Karena search memfilter array, index mungkin bergeser jika pakai filtered array. 
+            // Solusi aman: cari data di allReports atau pass object report langsung. 
+            // Di sini kita ambil dari renderGrid yang pakai array hasil filter, jadi mapping index harus hati-hati.
+            // Paling aman kita cari berdasarkan ID jika mau perfect, tapi untuk simple grid ini oke asal search reset.
+            // *Perbaikan Logic:* Saat search aktif, index renderGrid beda dengan allReports.
+            // Kita akan cari object report yang sedang dirender.
+            
+            // Hack cepat: renderGrid mengirim index dari array yang SEDANG dirender. 
+            // Tapi tombol onclick di HTML string susah passing object.
+            // Kita akan gunakan pencarian ulang berdasarkan ID card di DOM atau cara lain.
+            // *Simplifikasi:* Matikan fungsi search saat klik detail? Tidak bagus.
+            
+            // *Solusi Terbaik:*
+            // Ubah renderGrid agar onclick mengirim ID laporan, lalu kita cari di allReports.
+            // Lihat modifikasi di bawah function showDetailById.
+            
+            showDetailById(report.id);
+        }
+
+        function showDetailById(id) {
+            const report = allReports.find(r => r.id === id);
+            if(!report) return;
+
+            const dateObj = new Date(report.waktuKejadian);
+            const fullDate = dateObj.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' });
+
+            document.getElementById('modalJudul').innerText = report.judulLaporan || 'Tanpa Judul';
+            document.getElementById('modalTicket').innerText = "#LP-" + report.id;
+            document.getElementById('modalWaktu').innerText = fullDate;
+            document.getElementById('modalKategori').innerText = report.kategori;
+            document.getElementById('modalTempat').innerText = report.tempatKejadian;
+            document.getElementById('modalDeskripsi').innerText = report.deskripsi;
+            
+            // Badge Status Modal
+            const statusEl = document.getElementById('modalStatus');
+            statusEl.innerText = report.status;
+            statusEl.className = 'badge';
+            if(report.status === 'Diterima') statusEl.classList.add('badge-diterima');
+            else if(report.status === 'Diproses') statusEl.classList.add('badge-diproses');
+            else if(report.status === 'Selesai') statusEl.classList.add('badge-selesai');
+            else statusEl.classList.add('badge-ditolak');
+
+            if (report.anonim) {
+                document.getElementById('modalPelapor').innerHTML = '<i class="fas fa-user-secret"></i> Dirahasiakan (Anonim)';
+            } else {
+                document.getElementById('modalPelapor').innerText = `${report.namaPelapor} (${report.nimPelapor}) - ${report.programStudi}`;
+            }
+
+            const buktiContainer = document.getElementById('modalBuktiContainer');
+            if (report.buktiFoto) {
+                const fileUrl = `${API_URL}/laporan/file/${report.buktiFoto}`;
+                if(report.buktiFoto.endsWith('.mp4') || report.buktiFoto.endsWith('.avi')) {
+                    buktiContainer.innerHTML = `<video controls style="max-width:100%; border-radius:8px;"><source src="${fileUrl}" type="video/mp4"></video>`;
+                } else if(report.buktiFoto.endsWith('.pdf')) {
+                    buktiContainer.innerHTML = `<a href="${fileUrl}" target="_blank" class="btn-sm">Buka PDF</a>`;
+                } else {
+                    buktiContainer.innerHTML = `<img src="${fileUrl}" class="proof-img">`;
+                }
+            } else {
+                buktiContainer.innerHTML = '<span style="color:#888;">Tidak ada bukti.</span>';
+            }
+
+            document.getElementById('detailModal').style.display = "block";
+        }
+
+        // Override renderGrid untuk pakai ID
+        function renderGrid(reports) {
+            const grid = document.getElementById('reportGrid');
+            grid.innerHTML = '';
+            if (reports.length === 0) { grid.innerHTML = `<div class="empty-state">Tidak ada laporan.</div>`; return; }
+
+            reports.forEach(report => {
+                const dateObj = new Date(report.waktuKejadian);
+                const dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                const statusLower = report.status.toLowerCase();
+                const pelaporName = report.anonim ? "Anonim" : report.namaPelapor;
+                let badgeClass = 'badge-diterima';
+                if(statusLower === 'diproses') badgeClass = 'badge-diproses';
+                else if(statusLower === 'selesai') badgeClass = 'badge-selesai';
+                else if(statusLower === 'ditolak') badgeClass = 'badge-ditolak';
+
+                const html = `
+                    <div class="report-card status-${statusLower}">
+                        <div class="card-header">
+                            <span class="ticket-id">#LP-${report.id}</span>
+                            <span class="badge ${badgeClass}">${report.status}</span>
+                        </div>
+                        <div class="card-body">
+                            <h3>${report.judulLaporan || 'Tanpa Judul'}</h3>
+                            <span class="card-meta"><i class="fas fa-user"></i> ${pelaporName} | ${dateStr}</span>
+                            <p class="card-desc">${report.deskripsi}</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-sm" onclick="showDetailById(${report.id})">Detail</button>
+                            <select class="status-select-sm" onchange="updateStatus(${report.id}, this)">
+                                <option value="Diterima" ${report.status === 'Diterima' ? 'selected' : ''}>Diterima</option>
+                                <option value="Diproses" ${report.status === 'Diproses' ? 'selected' : ''}>Diproses</option>
+                                <option value="Selesai" ${report.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                                <option value="Ditolak" ${report.status === 'Ditolak' ? 'selected' : ''}>Ditolak</option>
+                            </select>
+                        </div>
+                    </div>`;
+                grid.innerHTML += html;
+            });
+        }
+
+        function closeModal() { document.getElementById('detailModal').style.display = "none"; }
+        window.onclick = function(e) { if (e.target == document.getElementById('detailModal')) closeModal(); }
+    </script>
+</body>
+</html>

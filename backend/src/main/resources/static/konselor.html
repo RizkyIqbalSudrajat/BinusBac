@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAC - Pilih Konselor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CSS VARIABLES & RESET (Sama dengan Dashboard) --- */
+        :root {
+            --primary: #0088CC;
+            --secondary: #264653;
+            --wa-color: #25D366;
+            --text-dark: #333;
+            --text-grey: #666;
+            --bg-light: #F8F9FA;
+            --white: #FFFFFF;
+            --sidebar-width: 260px;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body { background-color: var(--bg-light); display: flex; min-height: 100vh; }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width); background: var(--white); padding: 30px 20px;
+            position: fixed; height: 100vh; border-right: 1px solid #eee; display: flex; flex-direction: column; z-index: 100;
+        }
+        .brand { margin-bottom: 40px; padding-left: 10px; }
+        .brand h2 { font-size: 1.5rem; color: #000; font-weight: bold; }
+        .brand span { font-size: 0.9rem; color: var(--text-grey); display: block; margin-top: 5px; }
+        .menu { display: flex; flex-direction: column; gap: 10px; }
+        .menu-item {
+            text-decoration: none; padding: 12px 20px; border-radius: 8px; color: var(--text-grey);
+            font-weight: 500; display: flex; align-items: center; gap: 15px; transition: all 0.3s ease; border: 1px solid transparent;
+        }
+        .menu-item i { width: 25px; text-align: center; display: inline-block; }
+        .menu-item:hover { background-color: #f0f8ff; color: var(--primary); padding-left: 25px; }
+        .menu-item.active { background-color: var(--primary); color: var(--white); box-shadow: 0 4px 10px rgba(0, 136, 204, 0.3); }
+        .logout-link { margin-top: auto; color: #E76F51; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px; width: calc(100% - var(--sidebar-width)); }
+        .page-header { margin-bottom: 30px; }
+        .page-header h2 { color: var(--secondary); margin-bottom: 10px; }
+        .page-header p { color: var(--text-grey); }
+
+        /* --- COUNSELOR GRID --- */
+        .counselor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        
+        .counselor-card {
+            background: var(--white); border-radius: var(--radius); padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); text-align: center; transition: transform 0.3s;
+            position: relative; overflow: hidden; border-top: 4px solid transparent;
+        }
+        .counselor-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
+
+        /* Avatar */
+        .avatar {
+            width: 90px; height: 90px; background-color: #eee; border-radius: 50%;
+            margin: 0 auto 15px; background-size: cover; background-position: center;
+            border: 3px solid white; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .info h3 { color: var(--secondary); font-size: 1.2rem; margin-bottom: 5px; }
+        .info span { color: var(--primary); font-size: 0.9rem; font-weight: 600; display: block; margin-bottom: 10px; }
+        .info p { color: var(--text-grey); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; min-height: 60px; /* Agar tinggi kartu seragam */ }
+
+        /* WhatsApp Button */
+        .btn-wa {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background-color: var(--wa-color); color: white; text-decoration: none;
+            padding: 12px; border-radius: 50px; font-weight: bold; transition: 0.3s;
+        }
+        .btn-wa:hover { background-color: #1da851; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4); }
+
+        .loading-state, .empty-state { text-align: center; width: 100%; padding: 40px; color: #888; grid-column: 1 / -1; }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <h2>Binus SafeLine</h2>
+            <span>Semesta Apps</span>
+        </div>
+
+        <nav class="menu">
+            <a href="dashboard.html" class="menu-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="lapor.html" class="menu-item">
+                <i class="fas fa-edit"></i> Buat Laporan
+            </a>
+            <a href="riwayatlaporan.html" class="menu-item">
+                <i class="fas fa-book"></i> Riwayat Laporan
+            </a>
+            <a href="konselor.html" class="menu-item active">
+                <i class="fas fa-comments"></i> Chat Konselor
+            </a>
+            <a href="edukasi.html" class="menu-item"><i class="fas fa-bullhorn"></i> Pusat Edukasi</a>
+            <a href="index.html" class="menu-item logout-link" onclick="localStorage.clear()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h2>Pilih Konselor</h2>
+            <p>Konselor kami siap mendengarkan cerita Anda. Privasi Anda terjamin. Silakan pilih konselor yang tersedia.</p>
+        </div>
+
+        <div class="counselor-grid" id="counselorList">
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i> Memuat data konselor...
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = "http://localhost:8080/api";
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Cek Session sederhana
+            if (!localStorage.getItem('userNim')) {
+                alert("Silakan login terlebih dahulu.");
+                window.location.href = 'index.html';
+                return;
+            }
+            loadKonselor();
+        });
+
+        async function loadKonselor() {
+            const container = document.getElementById('counselorList');
+            
+            try {
+                const response = await fetch(`${API_URL}/konsultan/all`);
+                if(!response.ok) throw new Error("Gagal mengambil data");
+                
+                const data = await response.json();
+                
+                container.innerHTML = ''; // Hapus loading
+
+                if (data.length === 0) {
+                    container.innerHTML = `<div class="empty-state">Belum ada konselor yang tersedia saat ini.</div>`;
+                    return;
+                }
+
+                // Array warna border agar variatif seperti desain asli
+                const colors = ['#0088CC', '#E9C46A', '#2A9D8F', '#E76F51'];
+
+                data.forEach((item, index) => {
+                    // Logic Gambar
+                    let imgSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.nama)}&background=random&color=fff`;
+                    if (item.fotoProfile) {
+                        imgSrc = `${API_URL}/konsultan/foto/${item.fotoProfile}`;
+                    }
+
+                    // Pilih warna border berdasarkan urutan
+                    const borderColor = colors[index % colors.length];
+
+                    const html = `
+                        <div class="counselor-card" style="border-top-color: ${borderColor};">
+                            <div class="avatar" style="background-image: url('${imgSrc}');"></div>
+                            
+                            <div class="info">
+                                <h3>${item.nama}</h3>
+                                <span>${item.job}</span>
+                                <p>${item.deskripsi}</p>
+                            </div>
+                            
+                            <a href="${item.linkWa}" target="_blank" class="btn-wa">
+                                <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> Chat via WhatsApp
+                            </a>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+                container.innerHTML = `<div class="empty-state" style="color:red">Gagal memuat data. Pastikan server backend aktif.</div>`;
+            }
+        }
+    </script>
+
+</body>
+</html>
